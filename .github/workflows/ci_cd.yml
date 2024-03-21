@@ -34,17 +34,3 @@ jobs:
         pytest defect_service/tests/
         pytest external_service/tests/
 
-    - name: Build Docker images
-      run: |
-        docker build -t ${{ secrets.DOCKER_REPOSITORY }}:user_service ./user_service
-        docker build -t ${{ secrets.DOCKER_REPOSITORY }}:defect_service ./defect_service
-        docker build -t ${{ secrets.DOCKER_REPOSITORY }}:external_service ./external_service
-
-    - name: Log in to Docker Hub
-      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Push Docker images
-      run: |
-        docker push ${{ secrets.DOCKER_REPOSITORY }}:user_service
-        docker push ${{ secrets.DOCKER_REPOSITORY }}:defect_service
-        docker push ${{ secrets.DOCKER_REPOSITORY }}:external_service
