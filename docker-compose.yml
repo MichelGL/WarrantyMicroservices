@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  external_service:
+    build: ./external_service
+    command: uvicorn app.external_service:app --reload --host 0.0.0.0 --port 8001
+    volumes:
+      - ./external_service/:/app/
+    ports:
+      - "8001:8001"
+    environment:
+      - USER_SERVICE_URL=http://user_service:8002
+      - DEFECT_SERVICE_URL=http://defect_service:8003
+
+  user_service:
+    build: ./user_service
+    command: uvicorn app.user_service:app --reload --host 0.0.0.0 --port 8002
+    volumes:
+      - ./user_service/:/app/
+    ports:
+      - "8002:8002"
+
+  defect_service:
+    build: ./defect_service
+    command: uvicorn app.defect_service:app --reload --host 0.0.0.0 --port 8003
+    volumes:
+      - ./defect_service/:/app/
+    ports:
+      - "8003:8003"
