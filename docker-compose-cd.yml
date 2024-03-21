@@ -3,7 +3,7 @@ version: '3.8'
 services:
   external_service:
     image: michelgl/warrantymicroservices:external_service
-    command: uvicorn app.external_service:app --reload --host 0.0.0.0 --port 8001
+    command: uvicorn external_service.app.external_service:app --reload --host 0.0.0.0 --port 8001
     ports:
       - "8001:8001"
     environment:
@@ -12,12 +12,12 @@ services:
 
   user_service:
     image: michelgl/warrantymicroservices:user_service
-    command: uvicorn app.user_service:app --reload --host 0.0.0.0 --port 8002
+    command: uvicorn user_service.app.user_service:app --reload --host 0.0.0.0 --port 8002
     ports:
       - "8002:8002"
 
   defect_service:
     image: michelgl/warrantymicroservices:defect_service
-    command: uvicorn app.defect_service:app --reload --host 0.0.0.0 --port 8003
+    command: uvicorn defect_service.app.defect_service:app --reload --host 0.0.0.0 --port 8003
     ports:
       - "8003:8003"

@@ -1,13 +1,70 @@
 from fastapi import FastAPI, HTTPException
 import httpx
 import os
+from enum import Enum
+from typing import Optional
 
-from external_schemas import SUserAdd, SUser, DefectStatus, SDefectAdd, SDefect
+from pydantic import BaseModel, ConfigDict
+from starlette import status
+
+
+class Role(str, Enum):
+    employee = "Сотрудник КС"
+    contractor = "Подрядчик"
+
+class SUserAdd(BaseModel):
+    username: str
+    password: str
+    role: Role
+
+class SUser(SUserAdd):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class DefectStatus(str, Enum):
+    new = "Новый"
+    in_progress = "В работе"
+    completed = "Завершен"
+
+class SDefectAdd(BaseModel):
+    name: str
+    status: DefectStatus
+    repair_deadline: Optional[int] = None
+    contractor: Optional[str] = None
+
+class SDefect(SDefectAdd):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
 
 app = FastAPI()
 
 USER_SERVICE_URL = str(os.environ.get('USER_SERVICE_URL')) + "/users/"
 DEFECT_SERVICE_URL = str(os.environ.get('DEFECT_SERVICE_URL')) + "/defects/"
+
+class HealthCheck(BaseModel):
+    """Response model to validate and return when performing a health check."""
+
+    status: str = "OK"
+
+@app.get(
+    "/health",
+    tags=["healthcheck"],
+    summary="Perform a Health Check",
+    response_description="Return HTTP Status Code 200 (OK)",
+    status_code=status.HTTP_200_OK,
+    response_model=HealthCheck,
+)
+def get_health() -> HealthCheck:
+    """
+    ## Perform a Health Check
+    Endpoint to perform a healthcheck on. This endpoint can primarily be used Docker
+    to ensure a robust container orchestration and management is in place. Other
+    services which rely on proper functioning of the API service will not deploy if this
+    endpoint returns any other HTTP status code except 200 (OK).
+    Returns:
+        HealthCheck: Returns a JSON response with the health status
+    """
+    return HealthCheck(status="OK")
 
 @app.post("/defects/", status_code=201)
 async def add_defect(
